@@ -1,0 +1,163 @@
+cmake_minimum_required(VERSION 3.4.1)
+
+set(CMAKE_VERBOSE_MAKEFILE on)
+
+include(ExternalProject)
+
+set(EXTERNALPROJECT_DEFAULT_ARGS
+    -DANDROID_ABI:STRING=${ANDROID_ABI}
+    -DANDROID_NDK:PATH=${ANDROID_NDK}
+    -DCMAKE_BUILD_TYPE:STRING=Release
+    -DCMAKE_MAKE_PROGRAM:STRING=${CMAKE_MAKE_PROGRAM}
+    -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${CMAKE_TOOLCHAIN_FILE}
+    -DANDROID_NATIVE_API_LEVEL:STRING=${ANDROID_NATIVE_API_LEVEL}
+)
+
+#libpng
+ExternalProject_Add(png_ext
+    PREFIX "${CMAKE_BINARY_DIR}/png"
+    URL http://download.sourceforge.net/libpng/libpng-1.6.26.tar.gz
+
+    CMAKE_CACHE_ARGS
+      ${EXTERNALPROJECT_DEFAULT_ARGS}
+      -DANDROID_TOOLCHAIN:STRING=gcc
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
+      -DPNG_SHARED:BOOL=OFF
+      -DPNG_STATIC:BOOL=ON
+      -DPNG_TESTS:BOOL=OFF
+
+    BUILD_BYPRODUCTS
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+)
+
+add_library(png STATIC IMPORTED)
+set_target_properties(png PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(png png_ext)
+include_directories("${CMAKE_BINARY_DIR}/contrib/include")
+
+
+#libfreetype
+ExternalProject_Add(freetype_ext
+    PREFIX "${CMAKE_BINARY_DIR}/freetype"
+    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
+
+    CMAKE_CACHE_ARGS
+      ${EXTERNALPROJECT_DEFAULT_ARGS}
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
+      -DWITH_PNG:BOOL=ON
+      -DWITH_HarfBuzz:BOOL=OFF
+      -DPNG_LIBRARY:PATH=${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+      -DPNG_PNG_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/contrib/include/libpng16
+
+    BUILD_BYPRODUCTS
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX}
+
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+)
+add_dependencies(freetype_ext png)
+
+add_library(freetype STATIC IMPORTED)
+set_target_properties(freetype PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(freetype freetype_ext)
+
+
+#libjansson
+ExternalProject_Add(jansson_ext
+    PREFIX "${CMAKE_BINARY_DIR}/jansson"
+    URL https://github.com/akheron/jansson/archive/v2.8.tar.gz
+
+    CMAKE_CACHE_ARGS
+      ${EXTERNALPROJECT_DEFAULT_ARGS}
+      -DJANSSON_EXAMPLES:BOOL=OFF
+
+    BUILD_BYPRODUCTS
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jansson${CMAKE_STATIC_LIBRARY_SUFFIX}
+
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+)
+
+add_library(jansson STATIC IMPORTED)
+set_target_properties(jansson PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jansson${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(jansson jansson_ext)
+
+#libspeexdsp
+if(NO)
+set(MAKE "${ANDROID_NDK}/prebuilt/${ANDROID_HOST_TAG}/bin/make${ANDROID_TOOLCHAIN_SUFFIX}")
+message("MAKE: configure --host=${ANDROID_TOOLCHAIN_NAME} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix=${CMAKE_BINARY_DIR}/speexdsp/p "$@"")
+ExternalProject_Add(speexdsp_ext
+    PREFIX "${CMAKE_BINARY_DIR}/speexdsp"
+    URL https://github.com/xiph/speexdsp/archive/SpeexDSP-1.2rc3.tar.gz
+
+    CONFIGURE_COMMAND <SOURCE_DIR>/autogen.sh
+    CONFIGURE_COMMAND <SOURCE_DIR>/configure --host=${ANDROID_LLVM_TRIPLE} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix="${CMAKE_BINARY_DIR}/speexdsp/speexdsp_ext-build/"
+
+    BUILD_COMMAND ${MAKE}
+    BUILD_COMMAND ${MAKE} install
+    BUILD_IN_SOURCE ON
+    
+    BUILD_BYPRODUCTS
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}speexdsp${CMAKE_STATIC_LIBRARY_SUFFIX}
+
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+)
+
+add_library(speexdsp STATIC IMPORTED)
+set_target_properties(speexdsp PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}speexdsp${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+add_dependencies(speexdsp speexdsp_ext)
+endif()
+
+ExternalProject_Add(sdl_ext
+    PREFIX "${CMAKE_BINARY_DIR}/sdl"
+    URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
+    
+    PATCH_COMMAND patch -p2 -t -N ${CMAKE_BINARY_DIR}/../../sdl.patch
+
+    CMAKE_CACHE_ARGS
+      ${EXTERNALPROJECT_DEFAULT_ARGS}
+      -DANDROID_TOOLCHAIN:STRING=gcc
+      -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
+      -DHAVE_SDL_THREADS:BOOL=ON
+      -DVIDEO_DUMMY:BOOL=OFF
+      -DDISKAUDIO:BOOL=OFF
+      -DPTHREADS:BOOL=ON
+      -DPTHREADS_SEM:BOOL=ON
+      -DSDL_SHARED:BOOL=OFF
+      -DSDL_STATIC:BOOL=ON
+      
+    LOG_DOWNLOAD 1
+    LOG_UPDATE 1
+    LOG_CONFIGURE 1
+    LOG_BUILD 1
+    LOG_TEST 1
+    LOG_INSTALL 1
+)

@@ -1,0 +1,119 @@
+From 267421c9fa995997a3e3d4649d8ab3677b34ac3e Mon Sep 17 00:00:00 2001
+Date: Wed, 26 Oct 2016 22:15:35 +0200
+Subject: [PATCH] Fix compilation
+
+---
+ CMakeLists.txt                       | 21 +++++++++++++++++----
+ cmake/sdlchecks.cmake                |  5 ++++-
+ src/video/android/SDL_androidvideo.c |  8 +++++---
+ 3 files changed, 26 insertions(+), 8 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 54a23f0..412e144 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -722,6 +722,7 @@ if(SDL_VIDEO)
+   endif()
+ endif()
+ 
++# Platform-specific options and settings
+ if(ANDROID)
+   file(GLOB ANDROID_CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/android/*.c)
+   set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_CORE_SOURCES})
+@@ -745,12 +746,23 @@ if(ANDROID)
+     set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_JOYSTICK_SOURCES})
+     set(HAVE_SDL_JOYSTICK TRUE)
+   endif()
++  CheckPTHREAD()
+   if(SDL_POWER)
+     set(SDL_POWER_ANDROID 1)
+     file(GLOB ANDROID_POWER_SOURCES ${SDL2_SOURCE_DIR}/src/power/android/*.c)
+     set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_POWER_SOURCES})
+     set(HAVE_SDL_POWER TRUE)
+   endif()
++  if(SDL_TIMERS)
++    set(SDL_TIMER_UNIX 1)
++    file(GLOB TIMER_SOURCES ${SDL2_SOURCE_DIR}/src/timer/unix/*.c)
++    set(SOURCE_FILES ${SOURCE_FILES} ${TIMER_SOURCES})
++    set(HAVE_SDL_TIMERS TRUE)
++
++    if(CLOCK_GETTIME)
++      set(HAVE_CLOCK_GETTIME 1)
++    endif()
++  endif()
+   if(SDL_VIDEO)
+     set(SDL_VIDEO_DRIVER_ANDROID 1)
+     file(GLOB ANDROID_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/android/*.c)
+@@ -763,13 +775,14 @@ if(ANDROID)
+       set(HAVE_VIDEO_OPENGLES TRUE)
+       set(SDL_VIDEO_OPENGL_ES2 1)
+       set(SDL_VIDEO_RENDER_OGL_ES2 1)
++      list(APPEND EXTRA_CFLAGS "-DGL_GLEXT_PROTOTYPES")
++      list(APPEND EXTRA_LIBS GLESv1_CM GLESv2)
+     endif()
+   endif()
++  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
++  list(APPEND EXTRA_LIBS android log)
+   list(APPEND EXTRA_LDFLAGS "-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit")
+-endif()
+-
+-# Platform-specific options and settings
+-if(EMSCRIPTEN)
++elseif(EMSCRIPTEN)
+   # Hide noisy warnings that intend to aid mostly during initial stages of porting a new
+   # project. Uncomment at will for verbose cross-compiling -I/../ path info.
+   add_definitions(-Wno-warn-absolute-paths)
+diff --git a/cmake/sdlchecks.cmake b/cmake/sdlchecks.cmake
+index b100781..c7e5f57 100644
+--- a/cmake/sdlchecks.cmake
++++ b/cmake/sdlchecks.cmake
+@@ -803,7 +803,10 @@ endmacro()
+ # PTHREAD_LIBS
+ macro(CheckPTHREAD)
+   if(PTHREADS)
+-    if(LINUX)
++    if(ANDROID)
++      set(PTHREAD_CFLAGS "-D_REENTRANT")
++      set(PTHREAD_LDFLAGS "")
++    elseif(LINUX)
+       set(PTHREAD_CFLAGS "-D_REENTRANT")
+       set(PTHREAD_LDFLAGS "-pthread")
+     elseif(BSDI)
+diff --git a/src/video/android/SDL_androidvideo.c b/src/video/android/SDL_androidvideo.c
+index 178a3e6..303535d 100644
+--- a/src/video/android/SDL_androidvideo.c
++++ b/src/video/android/SDL_androidvideo.c
+@@ -197,6 +197,8 @@ Android_VideoQuit(_THIS)
+ void
+ Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
+ {
++    SDL_VideoDevice* device;
++    SDL_VideoDisplay *display;
+     Android_ScreenWidth = width;
+     Android_ScreenHeight = height;
+     Android_ScreenFormat = format;
+@@ -208,10 +210,10 @@ Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
+       example happen when the Activity enters or exists immersive mode,
+       which can happen after VideoInit().
+     */
+-    SDL_VideoDevice* device = SDL_GetVideoDevice();
++    device = SDL_GetVideoDevice();
+     if (device && device->num_displays > 0)
+     {
+-        SDL_VideoDisplay* display = &device->displays[0];
++        display = &device->displays[0];
+         display->desktop_mode.format = Android_ScreenFormat;
+         display->desktop_mode.w = Android_ScreenWidth;
+         display->desktop_mode.h = Android_ScreenHeight;
+@@ -223,7 +225,7 @@ Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
+ 
+         /* Force the current mode to match the resize otherwise the SDL_WINDOWEVENT_RESTORED event
+          * will fall back to the old mode */
+-        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(Android_Window);
++        display = SDL_GetDisplayForWindow(Android_Window);
+ 
+         display->current_mode.format = format;
+         display->current_mode.w = width;
+-- 
+2.10.1
+
