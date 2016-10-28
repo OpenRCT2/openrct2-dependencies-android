@@ -22,12 +22,14 @@ ExternalProject_Add(png_ext
       ${EXTERNALPROJECT_DEFAULT_ARGS}
       -DANDROID_TOOLCHAIN:STRING=gcc
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
-      -DPNG_SHARED:BOOL=OFF
-      -DPNG_STATIC:BOOL=ON
+      -DPNG_SHARED:BOOL=ON
+      -DPNG_STATIC:BOOL=OFF
       -DPNG_TESTS:BOOL=OFF
+    CMAKE_ARGS
+      -DPNG_ARM_NEON=OFF
 
     BUILD_BYPRODUCTS
-        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}png${CMAKE_SHARED_LIBRARY_SUFFIX}
 
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
@@ -37,9 +39,9 @@ ExternalProject_Add(png_ext
     LOG_INSTALL 1
 )
 
-add_library(png STATIC IMPORTED)
+add_library(png SHARED IMPORTED)
 set_target_properties(png PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}png${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 add_dependencies(png png_ext)
 include_directories("${CMAKE_BINARY_DIR}/contrib/include")
@@ -55,11 +57,12 @@ ExternalProject_Add(freetype_ext
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
       -DWITH_PNG:BOOL=ON
       -DWITH_HarfBuzz:BOOL=OFF
-      -DPNG_LIBRARY:PATH=${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}png${CMAKE_STATIC_LIBRARY_SUFFIX}
+      -DPNG_LIBRARY:PATH=${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}png${CMAKE_SHARED_LIBRARY_SUFFIX}
       -DPNG_PNG_INCLUDE_DIR:PATH=${CMAKE_BINARY_DIR}/contrib/include/libpng16
+      -DBUILD_SHARED_LIBS:BOOL=ON
 
     BUILD_BYPRODUCTS
-        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX}
+        ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}freetype${CMAKE_SHARED_LIBRARY_SUFFIX}
 
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
@@ -72,7 +75,7 @@ add_dependencies(freetype_ext png)
 
 add_library(freetype STATIC IMPORTED)
 set_target_properties(freetype PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}freetype${CMAKE_STATIC_LIBRARY_SUFFIX}
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}freetype${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
 add_dependencies(freetype freetype_ext)
 
@@ -85,6 +88,7 @@ ExternalProject_Add(jansson_ext
     CMAKE_CACHE_ARGS
       ${EXTERNALPROJECT_DEFAULT_ARGS}
       -DJANSSON_EXAMPLES:BOOL=OFF
+      -DJANSSON_BUILD_SHARED_LIBS:BOOL=ON
 
     BUILD_BYPRODUCTS
         ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jansson${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -106,7 +110,7 @@ add_dependencies(jansson jansson_ext)
 #libspeexdsp
 if(NO)
 set(MAKE "${ANDROID_NDK}/prebuilt/${ANDROID_HOST_TAG}/bin/make${ANDROID_TOOLCHAIN_SUFFIX}")
-message("MAKE: configure --host=${ANDROID_TOOLCHAIN_NAME} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix=${CMAKE_BINARY_DIR}/speexdsp/p "$@"")
+message("MAKE: configure --host=${ANDROID_TOOLCHAIN_NAME} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix=${CMAKE_BINARY_DIR}/speexdsp/p \"$@\"")
 ExternalProject_Add(speexdsp_ext
     PREFIX "${CMAKE_BINARY_DIR}/speexdsp"
     URL https://github.com/xiph/speexdsp/archive/SpeexDSP-1.2rc3.tar.gz
@@ -136,6 +140,8 @@ set_target_properties(speexdsp PROPERTIES IMPORTED_LOCATION
 add_dependencies(speexdsp speexdsp_ext)
 endif()
 
+# libsdl2
+if(NO)
 ExternalProject_Add(sdl_ext
     PREFIX "${CMAKE_BINARY_DIR}/sdl"
     URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
@@ -161,3 +167,4 @@ ExternalProject_Add(sdl_ext
     LOG_TEST 1
     LOG_INSTALL 1
 )
+endif()

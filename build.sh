@@ -9,19 +9,23 @@ CMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake"
 ANDROID_NATIVE_API_LEVEL=16
 
 ABIS=("armeabi" "armeabi-v7a" "arm64-v8a" "x86" "x86_64" "mips" "mips64")
+ABIS=("arm64-v8a")
+H_DIR="$(pwd)"
+
+mkdir "${H_DIR}/dist"
 
 for ANDROID_ABI in "${ABIS[@]}"
 do
     :
     echo "\n\nRunning Cmake script (${ANDROID_ABI}) ...\n\n"
     
-    H_DIR="$(pwd)"
-    B_DIR="$(pwd)/build/${ANDROID_ABI}/build"
-    OBJ_DIR="$(pwd)/build/${ANDROID_ABI}/obj"
-    echo $CMAKE \
+    B_DIR="${H_DIR}/build/${ANDROID_ABI}/build"
+    OBJ_DIR="${H_DIR}/dist/${ANDROID_ABI}/obj"
+    LIB_DIR="${H_DIR}/dist/${ANDROID_ABI}/lib"
+    INC_DIR="${H_DIR}/dist/${ANDROID_ABI}/include"
+    eval $CMAKE \
         -H${H_DIR} \
         -B${B_DIR} \
-#        -G\"Android Gradle - Ninja\" \
         -GNinja \
         -DANDROID_ABI=$ANDROID_ABI \
         -DANDROID_NDK=$ANDROID_NDK \
@@ -30,9 +34,19 @@ do
         -DCMAKE_MAKE_PROGRAM=$CMAKE_MAKE_PROGRAM \
         -DCMAKE_TOOLCHAIN_FILE=$CMAKE_TOOLCHAIN_FILE \
         -DANDROID_NATIVE_API_LEVEL=${ANDROID_NATIVE_API_LEVEL}
+
+    mkdir -p $LIB_DIR
+    mkdir -p $INC_DIR
     
     pushd $B_DIR
-    echo $CMAKE_MAKE_PROGRAM
+    eval $CMAKE_MAKE_PROGRAM
     popd
+    
+    cp -r "${B_DIR}/contrib/include/." $INC_DIR
+    cp -r "${B_DIR}/jansson/src/jansson_ext-build/include/." $INC_DIR
+    cp -r "${B_DIR}/contrib/lib/libfreetype.so" $LIB_DIR
+    cp -r "${B_DIR}/contrib/lib/libpng16.so" $LIB_DIR
+    cp -r "${B_DIR}/jansson/src/jansson_ext-build/lib/libjansson.so" $LIB_DIR
+    
 done
 
