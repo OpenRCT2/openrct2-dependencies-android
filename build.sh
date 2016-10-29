@@ -46,6 +46,9 @@ do
     cp -r "${B_DIR}/jansson/src/jansson_ext-build/include/." $INC_DIR
     cp -r "${B_DIR}/contrib/lib/libfreetype.so" $LIB_DIR
     cp -r "${B_DIR}/contrib/lib/libpng16.so" $LIB_DIR
+    cp -r "${B_DIR}/contrib/lib/libspeexdsp.so" $LIB_DIR
+    cp -r "${B_DIR}/contrib/lib/libSDL2-2.0.so" $LIB_DIR
+    cp -r "${B_DIR}/contrib/lib/libSDL2main.a" $LIB_DIR
     cp -r "${B_DIR}/jansson/src/jansson_ext-build/lib/libjansson.so" $LIB_DIR
     
 done
