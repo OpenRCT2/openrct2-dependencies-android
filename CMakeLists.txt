@@ -122,7 +122,7 @@ ExternalProject_Add(speexdsp_ext
     BUILD_IN_SOURCE ON
 
     INSTALL_COMMAND ""
-    
+
     BUILD_BYPRODUCTS
         ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}speexdsp${CMAKE_STATIC_LIBRARY_SUFFIX}
 
@@ -145,7 +145,7 @@ endif()
 ExternalProject_Add(sdl_ext
     PREFIX "${CMAKE_BINARY_DIR}/sdl"
     URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
-    
+
     PATCH_COMMAND patch --strip=1 --batch -i "${CMAKE_SOURCE_DIR}/sdl.patch"
 
     CMAKE_CACHE_ARGS
@@ -159,7 +159,7 @@ ExternalProject_Add(sdl_ext
       -DPTHREADS_SEM:BOOL=ON
       -DSDL_SHARED:BOOL=ON
       -DSDL_STATIC:BOOL=OFF
-      
+
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
     LOG_CONFIGURE 1
