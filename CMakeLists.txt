@@ -108,19 +108,20 @@ set_target_properties(jansson PROPERTIES IMPORTED_LOCATION
 add_dependencies(jansson jansson_ext)
 
 #libspeexdsp
-if(NO)
-set(MAKE "${ANDROID_NDK}/prebuilt/${ANDROID_HOST_TAG}/bin/make${ANDROID_TOOLCHAIN_SUFFIX}")
-message("MAKE: configure --host=${ANDROID_TOOLCHAIN_NAME} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix=${CMAKE_BINARY_DIR}/speexdsp/p \"$@\"")
+if(YES)
+set(MAKE "${ANDROID_NDK}/prebuilt/${ANDROID_NDK_HOST_SYSTEM_NAME}/bin/make${ANDROID_TOOLCHAIN_SUFFIX}")
+string(FIND "${ANDROID_TOOLCHAIN_NAME}" "-" TOOLCHAIN_TRIPLE_END REVERSE)
+string(SUBSTRING "${ANDROID_TOOLCHAIN_NAME}" 0 ${TOOLCHAIN_TRIPLE_END} TOOLCHAIN_TRIPLE)
 ExternalProject_Add(speexdsp_ext
     PREFIX "${CMAKE_BINARY_DIR}/speexdsp"
     URL https://github.com/xiph/speexdsp/archive/SpeexDSP-1.2rc3.tar.gz
 
-    CONFIGURE_COMMAND <SOURCE_DIR>/autogen.sh
-    CONFIGURE_COMMAND <SOURCE_DIR>/configure --host=${ANDROID_LLVM_TRIPLE} --with-sysroot=${ANDROID_TOOLCHAIN_ROOT} --prefix="${CMAKE_BINARY_DIR}/speexdsp/speexdsp_ext-build/"
+    CONFIGURE_COMMAND ""
 
-    BUILD_COMMAND ${MAKE}
-    BUILD_COMMAND ${MAKE} install
+    BUILD_COMMAND "${CMAKE_SOURCE_DIR}/autoconf.sh" ${MAKE} ${TOOLCHAIN_TRIPLE} ${ANDROID_ARCH_NAME} ${ANDROID_PLATFORM_LEVEL} "${CMAKE_BINARY_DIR}/contrib/"
     BUILD_IN_SOURCE ON
+
+    INSTALL_COMMAND ""
     
     BUILD_BYPRODUCTS
         ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}speexdsp${CMAKE_STATIC_LIBRARY_SUFFIX}
