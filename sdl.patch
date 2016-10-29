@@ -1,18 +1,20 @@
-From 267421c9fa995997a3e3d4649d8ab3677b34ac3e Mon Sep 17 00:00:00 2001
-Date: Wed, 26 Oct 2016 22:15:35 +0200
-Subject: [PATCH] Fix compilation
+From aef9dbb4267a4c0ebe198a278e3e90ece1327823 Mon Sep 17 00:00:00 2001
+From: Marijn van der Werf <marijn.vanderwerf@gmail.com>
+Date: Sat, 29 Oct 2016 22:18:10 +0200
+Subject: [PATCH] update
 
+update
 ---
- CMakeLists.txt                       | 21 +++++++++++++++++----
+ CMakeLists.txt                       | 24 ++++++++++++++++++------
  cmake/sdlchecks.cmake                |  5 ++++-
  src/video/android/SDL_androidvideo.c |  8 +++++---
- 3 files changed, 26 insertions(+), 8 deletions(-)
+ 3 files changed, 27 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 54a23f0..412e144 100644
+index 54a23f0..3188284 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -722,6 +722,7 @@ if(SDL_VIDEO)
+@@ -722,11 +722,11 @@ if(SDL_VIDEO)
    endif()
  endif()
  
@@ -20,7 +22,13 @@ index 54a23f0..412e144 100644
  if(ANDROID)
    file(GLOB ANDROID_CORE_SOURCES ${SDL2_SOURCE_DIR}/src/core/android/*.c)
    set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_CORE_SOURCES})
-@@ -745,12 +746,23 @@ if(ANDROID)
+-  file(GLOB ANDROID_MAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/android/*.c)
+-  set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_MAIN_SOURCES})
++  file(GLOB SDLMAIN_SOURCES ${SDL2_SOURCE_DIR}/src/main/android/*.c)
+   if(SDL_AUDIO)
+     set(SDL_AUDIO_DRIVER_ANDROID 1)
+     file(GLOB ANDROID_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/android/*.c)
+@@ -745,12 +745,23 @@ if(ANDROID)
      set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_JOYSTICK_SOURCES})
      set(HAVE_SDL_JOYSTICK TRUE)
    endif()
@@ -44,7 +52,7 @@ index 54a23f0..412e144 100644
    if(SDL_VIDEO)
      set(SDL_VIDEO_DRIVER_ANDROID 1)
      file(GLOB ANDROID_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/android/*.c)
-@@ -763,13 +775,14 @@ if(ANDROID)
+@@ -763,13 +774,14 @@ if(ANDROID)
        set(HAVE_VIDEO_OPENGLES TRUE)
        set(SDL_VIDEO_OPENGL_ES2 1)
        set(SDL_VIDEO_RENDER_OGL_ES2 1)

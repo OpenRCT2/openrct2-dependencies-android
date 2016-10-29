@@ -142,12 +142,11 @@ add_dependencies(speexdsp speexdsp_ext)
 endif()
 
 # libsdl2
-if(NO)
 ExternalProject_Add(sdl_ext
     PREFIX "${CMAKE_BINARY_DIR}/sdl"
     URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
     
-    PATCH_COMMAND patch -p2 -t -N ${CMAKE_BINARY_DIR}/../../sdl.patch
+    PATCH_COMMAND patch --strip=1 --batch -i "${CMAKE_SOURCE_DIR}/sdl.patch"
 
     CMAKE_CACHE_ARGS
       ${EXTERNALPROJECT_DEFAULT_ARGS}
@@ -158,8 +157,8 @@ ExternalProject_Add(sdl_ext
       -DDISKAUDIO:BOOL=OFF
       -DPTHREADS:BOOL=ON
       -DPTHREADS_SEM:BOOL=ON
-      -DSDL_SHARED:BOOL=OFF
-      -DSDL_STATIC:BOOL=ON
+      -DSDL_SHARED:BOOL=ON
+      -DSDL_STATIC:BOOL=OFF
       
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
@@ -168,4 +167,3 @@ ExternalProject_Add(sdl_ext
     LOG_TEST 1
     LOG_INSTALL 1
 )
-endif()
