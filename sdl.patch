@@ -1,9 +1,8 @@
-From aef9dbb4267a4c0ebe198a278e3e90ece1327823 Mon Sep 17 00:00:00 2001
+From 129f29b9800da3ad5771a5d8cd31dd3104cf3729 Mon Sep 17 00:00:00 2001
 From: Marijn van der Werf <marijn.vanderwerf@gmail.com>
-Date: Sat, 29 Oct 2016 22:18:10 +0200
-Subject: [PATCH] update
+Date: Sun, 30 Oct 2016 00:34:28 +0200
+Subject: [PATCH] Fix project
 
-update
 ---
  CMakeLists.txt                       | 24 ++++++++++++++++++------
  cmake/sdlchecks.cmake                |  5 ++++-
@@ -11,7 +10,7 @@ update
  3 files changed, 27 insertions(+), 10 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 54a23f0..3188284 100644
+index 54a23f0..2c103c4 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -722,11 +722,11 @@ if(SDL_VIDEO)
@@ -60,7 +59,7 @@ index 54a23f0..3188284 100644
 +      list(APPEND EXTRA_LIBS GLESv1_CM GLESv2)
      endif()
    endif()
-+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99")
++  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 +  list(APPEND EXTRA_LIBS android log)
    list(APPEND EXTRA_LDFLAGS "-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit")
 -endif()
