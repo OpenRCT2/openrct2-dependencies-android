@@ -9,6 +9,7 @@ PREFIX="$5"
 PWD=`pwd`
 
 echo "TOOLCHAIN_TRIPLE: $TOOLCHAIN_TRIPLE"
+echo "ANDROID_ARCH_NAME: $ANDROID_ARCH_NAME"
 echo "ANDROID_PLATFORM_LEVEL: $ANDROID_PLATFORM_LEVEL"
 echo "PREFIX: $PREFIX"
 echo "PWD: $PWD"
@@ -27,7 +28,8 @@ export PATH="${MY_NDK}/bin":$PATH
 
 $(pwd)/autogen.sh
 
-if [ "$ANDROID_ARCH_NAME" == "arm64" ]; then
+if [ "$ANDROID_ARCH_NAME" == "arm64" ] || [[ "$ANDROID_ARCH_NAME" == x86* ]]; then
+  echo "Disabling NEON"
   $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --disable-neon
 else
   $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX
