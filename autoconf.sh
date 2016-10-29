@@ -26,7 +26,12 @@ SYSROOT="${MY_NDK}/sysroot"
 export PATH="${MY_NDK}/bin":$PATH
 
 $(pwd)/autogen.sh
-$(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --disable-neon
+
+if [ "$ANDROID_ARCH_NAME" == "arm64" ]; then
+  $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --disable-neon
+else
+  $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX
+fi
 
 ${MAKE}
 ${MAKE} install
