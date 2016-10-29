@@ -1,19 +1,31 @@
-From 129f29b9800da3ad5771a5d8cd31dd3104cf3729 Mon Sep 17 00:00:00 2001
+From d1c26f19a97c0ec6d4188a27031432f172a5c4a1 Mon Sep 17 00:00:00 2001
 From: Marijn van der Werf <marijn.vanderwerf@gmail.com>
 Date: Sun, 30 Oct 2016 00:34:28 +0200
 Subject: [PATCH] Fix project
 
 ---
- CMakeLists.txt                       | 24 ++++++++++++++++++------
+ CMakeLists.txt                       | 29 ++++++++++++++++++++++-------
  cmake/sdlchecks.cmake                |  5 ++++-
  src/video/android/SDL_androidvideo.c |  8 +++++---
- 3 files changed, 27 insertions(+), 10 deletions(-)
+ 3 files changed, 31 insertions(+), 11 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 54a23f0..2c103c4 100644
+index 54a23f0..4791245 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -722,11 +722,11 @@ if(SDL_VIDEO)
+@@ -517,7 +517,10 @@ if(ASSEMBLY)
+     if(SSEMATH)
+       if(SSE OR SSE2)
+         if(USE_GCC)
+-          list(APPEND EXTRA_CFLAGS "-mfpmath=387")
++          check_c_compiler_flag(-mfpmath=387 HAVE_FP_387)
++          if(HAVE_FP_387)
++            list(APPEND EXTRA_CFLAGS "-mfpmath=387")
++          endif()
+         endif()
+         set(HAVE_SSEMATH TRUE)
+       endif()
+@@ -722,11 +725,11 @@ if(SDL_VIDEO)
    endif()
  endif()
  
@@ -27,7 +39,7 @@ index 54a23f0..2c103c4 100644
    if(SDL_AUDIO)
      set(SDL_AUDIO_DRIVER_ANDROID 1)
      file(GLOB ANDROID_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/android/*.c)
-@@ -745,12 +745,23 @@ if(ANDROID)
+@@ -745,12 +748,23 @@ if(ANDROID)
      set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_JOYSTICK_SOURCES})
      set(HAVE_SDL_JOYSTICK TRUE)
    endif()
@@ -51,7 +63,7 @@ index 54a23f0..2c103c4 100644
    if(SDL_VIDEO)
      set(SDL_VIDEO_DRIVER_ANDROID 1)
      file(GLOB ANDROID_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/android/*.c)
-@@ -763,13 +774,14 @@ if(ANDROID)
+@@ -763,13 +777,14 @@ if(ANDROID)
        set(HAVE_VIDEO_OPENGLES TRUE)
        set(SDL_VIDEO_OPENGL_ES2 1)
        set(SDL_VIDEO_RENDER_OGL_ES2 1)
