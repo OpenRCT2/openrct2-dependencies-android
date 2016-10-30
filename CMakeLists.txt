@@ -46,7 +46,6 @@ set_target_properties(png PROPERTIES IMPORTED_LOCATION
 add_dependencies(png png_ext)
 include_directories("${CMAKE_BINARY_DIR}/contrib/include")
 
-
 #libfreetype
 ExternalProject_Add(freetype_ext
     PREFIX "${CMAKE_BINARY_DIR}/freetype"
@@ -73,7 +72,7 @@ ExternalProject_Add(freetype_ext
 )
 add_dependencies(freetype_ext png)
 
-add_library(freetype STATIC IMPORTED)
+add_library(freetype SHARED IMPORTED)
 set_target_properties(freetype PROPERTIES IMPORTED_LOCATION
     ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}freetype${CMAKE_SHARED_LIBRARY_SUFFIX}
 )
@@ -101,14 +100,7 @@ ExternalProject_Add(jansson_ext
     LOG_INSTALL 1
 )
 
-add_library(jansson STATIC IMPORTED)
-set_target_properties(jansson PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}jansson${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
-add_dependencies(jansson jansson_ext)
-
 #libspeexdsp
-if(YES)
 ExternalProject_Add(speexdsp_ext
     PREFIX "${CMAKE_BINARY_DIR}/speexdsp"
     URL https://github.com/xiph/speexdsp/archive/SpeexDSP-1.2rc3.tar.gz
@@ -130,13 +122,6 @@ ExternalProject_Add(speexdsp_ext
     LOG_TEST 1
     LOG_INSTALL 1
 )
-
-add_library(speexdsp STATIC IMPORTED)
-set_target_properties(speexdsp PROPERTIES IMPORTED_LOCATION
-    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_STATIC_LIBRARY_PREFIX}speexdsp${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
-add_dependencies(speexdsp speexdsp_ext)
-endif()
 
 # libsdl2
 ExternalProject_Add(sdl_ext
@@ -164,3 +149,10 @@ ExternalProject_Add(sdl_ext
     LOG_TEST 1
     LOG_INSTALL 1
 )
+
+add_library(SDL2 SHARED IMPORTED)
+set_target_properties(SDL2 PROPERTIES IMPORTED_LOCATION
+    ${CMAKE_BINARY_DIR}/contrib/lib/${CMAKE_SHARED_LIBRARY_PREFIX}SDL2-2.0${CMAKE_SHARED_LIBRARY_SUFFIX}
+)
+add_dependencies(SDL2 sdl_ext)
+
