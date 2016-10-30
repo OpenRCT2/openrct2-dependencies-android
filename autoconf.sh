@@ -29,10 +29,9 @@ export PATH="${MY_NDK}/bin":$PATH
 $(pwd)/autogen.sh
 
 if [ "$ANDROID_ARCH_NAME" == "arm64" ] || [[ "$ANDROID_ARCH_NAME" == x86* ]]; then
-  echo "Disabling NEON"
   $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --disable-neon
 else
-  $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX
+  $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --enable-fixed-point
 fi
 
 ${MAKE}
