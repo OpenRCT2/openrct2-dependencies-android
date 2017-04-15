@@ -1,6 +1,8 @@
 #!/bin/sh
 
-ANDROID_SDK="/usr/local/opt/android-sdk"
+echo "ANDROID_HOME=${ANDROID_HOME}"
+
+ANDROID_SDK=${ANDROID_HOME}
 ANDROID_NDK="${ANDROID_SDK}/ndk-bundle"
 CMAKE="${ANDROID_SDK}/cmake/3.6.3155560/bin/cmake"
 CMAKE_MAKE_PROGRAM="${ANDROID_SDK}/cmake/3.6.3155560/bin/ninja"
@@ -28,6 +30,7 @@ do
         -GNinja \
         -DANDROID_ABI=$ANDROID_ABI \
         -DANDROID_NDK=$ANDROID_NDK \
+        -DANDROID_STL="c++_static" \
         -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$OBJ_DIR \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_MAKE_PROGRAM=$CMAKE_MAKE_PROGRAM \
@@ -49,6 +52,10 @@ do
     cp -r "${B_DIR}/contrib/lib/libSDL2-2.0.so" $LIB_DIR
     cp -r "${B_DIR}/contrib/lib/libSDL2main.a" $LIB_DIR
     cp -r "${B_DIR}/jansson/src/jansson_ext-build/lib/libjansson.so" $LIB_DIR
+    
+    pushd "${H_DIR}/dist/${ANDROID_ABI}"
+    zip -r "${H_DIR}/dist/${ANDROID_ABI}.zip" .
+    popd
     
 done
 
