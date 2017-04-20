@@ -1,19 +1,31 @@
-From d1c26f19a97c0ec6d4188a27031432f172a5c4a1 Mon Sep 17 00:00:00 2001
+From 48459be4cdca6bf0f22f7e0373c384b421732fee Mon Sep 17 00:00:00 2001
 From: Marijn van der Werf <marijn.vanderwerf@gmail.com>
-Date: Sun, 30 Oct 2016 00:34:28 +0200
-Subject: [PATCH] Fix project
+Date: Sun, 16 Apr 2017 16:55:18 +0200
+Subject: [PATCH] Fix Cmake
 
+Use SDL_Config
 ---
- CMakeLists.txt                       | 29 ++++++++++++++++++++++-------
- cmake/sdlchecks.cmake                |  5 ++++-
- src/video/android/SDL_androidvideo.c |  8 +++++---
- 3 files changed, 31 insertions(+), 11 deletions(-)
+ CMakeLists.txt                      | 32 +++++++++++++++++++++++++-------
+ cmake/sdlchecks.cmake               |  5 ++++-
+ src/main/android/SDL_android_main.c |  2 +-
+ 3 files changed, 30 insertions(+), 9 deletions(-)
 
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index 54a23f0..4791245 100644
+index 54a23f0..5694e68 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
-@@ -517,7 +517,10 @@ if(ASSEMBLY)
+@@ -332,6 +332,10 @@ file(GLOB SOURCE_FILES
+   ${SDL2_SOURCE_DIR}/src/timer/*.c
+   ${SDL2_SOURCE_DIR}/src/video/*.c)
+ 
++check_c_compiler_flag(-marm HAVE_ARM)
++if(HAVE_ARM)
++  set_source_files_properties(${SDL2_SOURCE_DIR}/src/atomic/SDL_spinlock.c PROPERTIES COMPILE_FLAGS -marm)
++endif()
+ 
+ if(ASSERTIONS STREQUAL "auto")
+   # Do nada - use optimization settings to determine the assertion level
+@@ -517,7 +521,10 @@ if(ASSEMBLY)
      if(SSEMATH)
        if(SSE OR SSE2)
          if(USE_GCC)
@@ -25,7 +37,7 @@ index 54a23f0..4791245 100644
          endif()
          set(HAVE_SSEMATH TRUE)
        endif()
-@@ -722,11 +725,11 @@ if(SDL_VIDEO)
+@@ -722,11 +729,11 @@ if(SDL_VIDEO)
    endif()
  endif()
  
@@ -39,7 +51,7 @@ index 54a23f0..4791245 100644
    if(SDL_AUDIO)
      set(SDL_AUDIO_DRIVER_ANDROID 1)
      file(GLOB ANDROID_AUDIO_SOURCES ${SDL2_SOURCE_DIR}/src/audio/android/*.c)
-@@ -745,12 +748,23 @@ if(ANDROID)
+@@ -745,12 +752,23 @@ if(ANDROID)
      set(SOURCE_FILES ${SOURCE_FILES} ${ANDROID_JOYSTICK_SOURCES})
      set(HAVE_SDL_JOYSTICK TRUE)
    endif()
@@ -63,7 +75,7 @@ index 54a23f0..4791245 100644
    if(SDL_VIDEO)
      set(SDL_VIDEO_DRIVER_ANDROID 1)
      file(GLOB ANDROID_VIDEO_SOURCES ${SDL2_SOURCE_DIR}/src/video/android/*.c)
-@@ -763,13 +777,14 @@ if(ANDROID)
+@@ -763,13 +781,13 @@ if(ANDROID)
        set(HAVE_VIDEO_OPENGLES TRUE)
        set(SDL_VIDEO_OPENGL_ES2 1)
        set(SDL_VIDEO_RENDER_OGL_ES2 1)
@@ -71,7 +83,6 @@ index 54a23f0..4791245 100644
 +      list(APPEND EXTRA_LIBS GLESv1_CM GLESv2)
      endif()
    endif()
-+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99")
 +  list(APPEND EXTRA_LIBS android log)
    list(APPEND EXTRA_LDFLAGS "-Wl,--undefined=Java_org_libsdl_app_SDLActivity_nativeInit")
 -endif()
@@ -98,41 +109,19 @@ index b100781..c7e5f57 100644
        set(PTHREAD_CFLAGS "-D_REENTRANT")
        set(PTHREAD_LDFLAGS "-pthread")
      elseif(BSDI)
-diff --git a/src/video/android/SDL_androidvideo.c b/src/video/android/SDL_androidvideo.c
-index 178a3e6..303535d 100644
---- a/src/video/android/SDL_androidvideo.c
-+++ b/src/video/android/SDL_androidvideo.c
-@@ -197,6 +197,8 @@ Android_VideoQuit(_THIS)
- void
- Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
- {
-+    SDL_VideoDevice* device;
-+    SDL_VideoDisplay *display;
-     Android_ScreenWidth = width;
-     Android_ScreenHeight = height;
-     Android_ScreenFormat = format;
-@@ -208,10 +210,10 @@ Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
-       example happen when the Activity enters or exists immersive mode,
-       which can happen after VideoInit().
-     */
--    SDL_VideoDevice* device = SDL_GetVideoDevice();
-+    device = SDL_GetVideoDevice();
-     if (device && device->num_displays > 0)
-     {
--        SDL_VideoDisplay* display = &device->displays[0];
-+        display = &device->displays[0];
-         display->desktop_mode.format = Android_ScreenFormat;
-         display->desktop_mode.w = Android_ScreenWidth;
-         display->desktop_mode.h = Android_ScreenHeight;
-@@ -223,7 +225,7 @@ Android_SetScreenResolution(int width, int height, Uint32 format, float rate)
+diff --git a/src/main/android/SDL_android_main.c b/src/main/android/SDL_android_main.c
+index 671d932..a084d0e 100644
+--- a/src/main/android/SDL_android_main.c
++++ b/src/main/android/SDL_android_main.c
+@@ -1,7 +1,7 @@
+ /*
+     SDL_android_main.c, placed in the public domain by Sam Lantinga  3/13/14
+ */
+-#include "../../SDL_internal.h"
++#include "SDL_config.h"
  
-         /* Force the current mode to match the resize otherwise the SDL_WINDOWEVENT_RESTORED event
-          * will fall back to the old mode */
--        SDL_VideoDisplay *display = SDL_GetDisplayForWindow(Android_Window);
-+        display = SDL_GetDisplayForWindow(Android_Window);
+ #ifdef __ANDROID__
  
-         display->current_mode.format = format;
-         display->current_mode.w = width;
 -- 
-2.10.1
+2.12.2
 
