@@ -127,13 +127,12 @@ ExternalProject_Add(speexdsp_ext
 # libsdl2
 ExternalProject_Add(sdl_ext
     PREFIX "${CMAKE_BINARY_DIR}/sdl"
-    URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
+    URL https://www.libsdl.org/release/SDL2-2.0.4.tar.gz
 
     PATCH_COMMAND patch --strip=1 --batch -i "${CMAKE_SOURCE_DIR}/sdl.patch"
 
     CMAKE_CACHE_ARGS
       ${EXTERNALPROJECT_DEFAULT_ARGS}
-      -DANDROID_TOOLCHAIN:STRING=gcc
       -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_BINARY_DIR}/contrib
       -DHAVE_SDL_THREADS:BOOL=ON
       -DVIDEO_DUMMY:BOOL=OFF
