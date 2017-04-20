@@ -126,7 +126,7 @@ ExternalProject_Add(speexdsp_ext
 # libsdl2
 ExternalProject_Add(sdl_ext
     PREFIX "${CMAKE_BINARY_DIR}/sdl"
-    URL https://www.libsdl.org/release/SDL2-2.0.4.tar.gz
+    URL https://www.libsdl.org/release/SDL2-2.0.5.tar.gz
 
     PATCH_COMMAND patch --strip=1 --batch -i "${CMAKE_SOURCE_DIR}/sdl.patch"
 
