@@ -54,7 +54,7 @@ do
     cp -r "${B_DIR}/jansson/src/jansson_ext-build/lib/libjansson.so" $LIB_DIR
     
     pushd "${H_DIR}/dist/${ANDROID_ABI}"
-    zip -r "${H_DIR}/dist/${ANDROID_ABI}.zip" .
+    zip -r "${H_DIR}/dist/openrct2-libs-android-${ANDROID_ABI}.zip" .
     popd
     
 done
