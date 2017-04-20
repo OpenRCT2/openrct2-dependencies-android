@@ -20,7 +20,7 @@ set(TOOLCHAIN_TRIPLE "${ANDROID_HEADER_TRIPLE}")
 #libpng
 ExternalProject_Add(png_ext
     PREFIX "${CMAKE_BINARY_DIR}/png"
-    URL http://download.sourceforge.net/libpng/libpng-1.6.26.tar.gz
+    URL http://download.sourceforge.net/libpng/libpng-1.6.29.tar.gz
 
     CONFIGURE_COMMAND ""
 
@@ -49,7 +49,7 @@ include_directories("${CMAKE_BINARY_DIR}/contrib/include")
 #libfreetype
 ExternalProject_Add(freetype_ext
     PREFIX "${CMAKE_BINARY_DIR}/freetype"
-    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.6.5.tar.gz
+    URL http://download.savannah.gnu.org/releases/freetype/freetype-2.7.1.tar.gz
 
     CMAKE_CACHE_ARGS
       ${EXTERNALPROJECT_DEFAULT_ARGS}
@@ -82,7 +82,7 @@ add_dependencies(freetype freetype_ext)
 #libjansson
 ExternalProject_Add(jansson_ext
     PREFIX "${CMAKE_BINARY_DIR}/jansson"
-    URL https://github.com/akheron/jansson/archive/v2.8.tar.gz
+    URL https://github.com/akheron/jansson/archive/v2.10.tar.gz
 
     CMAKE_CACHE_ARGS
       ${EXTERNALPROJECT_DEFAULT_ARGS}
