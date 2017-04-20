@@ -141,6 +141,7 @@ ExternalProject_Add(sdl_ext
       -DPTHREADS_SEM:BOOL=ON
       -DSDL_SHARED:BOOL=ON
       -DSDL_STATIC:BOOL=OFF
+      -DGCC_ATOMICS:BOOL=ON
 
     LOG_DOWNLOAD 1
     LOG_UPDATE 1
