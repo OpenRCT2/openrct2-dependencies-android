@@ -30,7 +30,8 @@ do
         -GNinja \
         -DANDROID_ABI=$ANDROID_ABI \
         -DANDROID_NDK=$ANDROID_NDK \
-        -DANDROID_STL="c++_static" \
+        -DANDROID_STL="c++_shared" \
+        -DANDROID_CPP_FEATURES="rtti\ exceptions" \
         -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=$OBJ_DIR \
         -DCMAKE_BUILD_TYPE=Release \
         -DCMAKE_MAKE_PROGRAM=$CMAKE_MAKE_PROGRAM \
