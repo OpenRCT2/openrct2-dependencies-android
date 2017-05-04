@@ -31,6 +31,10 @@ export PATH="${MY_NDK}/bin":$PATH
 
 $(pwd)/autogen.sh
 
+if [ "$ANDROID_ARCH_NAME" == "arm" ]; then
+  export LDFLAGS="-Wl,--exclude-libs,libunwind.a -Wl,--exclude-libs,libgcc.a"
+fi
+
 if [ "$ANDROID_ARCH_NAME" == "arm64" ] || [[ "$ANDROID_ARCH_NAME" == x86* ]]; then
   $(pwd)/configure --host=$TOOLCHAIN_TRIPLE --with-sysroot=${SYSROOT} --prefix=$PREFIX --disable-neon
 else
