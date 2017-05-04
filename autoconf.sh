@@ -23,6 +23,7 @@ export PATH=${ANDROID_TOOLCHAIN_ROOT}/bin:$PATH
 "${ANDROID_NDK}/build/tools/make_standalone_toolchain.py" \
     --arch $ANDROID_ARCH_NAME \
     --api $ANDROID_PLATFORM_LEVEL \
+    --stl libc++ \
     --install-dir "${MY_NDK}"
 
 SYSROOT="${MY_NDK}/sysroot"
