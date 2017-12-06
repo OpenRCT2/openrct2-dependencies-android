@@ -10,7 +10,7 @@ CMAKE_TOOLCHAIN_FILE="${ANDROID_NDK}/build/cmake/android.toolchain.cmake"
 
 ANDROID_NATIVE_API_LEVEL=16
 
-ABIS=("armeabi" "armeabi-v7a" "arm64-v8a" "x86" "x86_64" "mips" "mips64")
+ABIS=("armeabi-v7a" "arm64-v8a" "x86" "x86_64")
 H_DIR="$(pwd)"
 
 mkdir "${H_DIR}/dist"
