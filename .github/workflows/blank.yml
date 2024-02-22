@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build-docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build docker image
+        run: docker build . -t vcpkg-build
+
+      - name: Save docker image
+        run: docker save -o vcpkg-build.tar vcpkg-build
+
+      - name: Upload docker image
+        uses: actions/upload-artifact@v4
+        with:
+          path: vcpkg-build.tar
+          name: vcpkg-build.tar
+          compression-level: 1
+  download:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [arm64, x64]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: vcpkg-build.tar
+      - name: Load image
+        run: |
+          docker load --input vcpkg-build.tar/vcpkg-build.tar
+
+      - name: Build ${{ matrix.arch }} libraries
+        run: docker run -v $(pwd)/project:/project -t vcpkg-build vcpkg install --triplet ${{ matrix.arch }}-android-dynamic
+
+      - name: Archive libraries
+        run: tar -c --zstd -f ${{ matrix.arch }}-android-dynamic.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
+
+      - name: Upload libraries
+        uses: actions/upload-artifact@v4
+        with:
+          path: ${{ matrix.arch }}-android-dynamic.tar.zst
+          name: ${{ matrix.arch }}-android-dynamic.tar.zst
+          compression-level: 1
