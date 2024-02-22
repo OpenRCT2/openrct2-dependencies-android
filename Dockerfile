@@ -7,7 +7,7 @@ RUN \
   apt-get -y upgrade
 
 RUN \
-  apt-get -y --no-install-recommends install git g++ wget curl zip vim pkg-config tar cmake unzip ca-certificates python3 autoconf autoconf-archive make
+  apt-get -y --no-install-recommends install git g++ wget curl zip vim pkg-config tar cmake unzip ca-certificates python3 autoconf autoconf-archive autotools-dev automake make
 
 # Download Android NDK
 RUN \
