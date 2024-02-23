@@ -17,14 +17,16 @@ jobs:
         run: docker build . -t vcpkg-build
 
       - name: Save docker image
-        run: docker save -o vcpkg-build.tar vcpkg-build
+        run: |
+          docker save -o vcpkg-build.tar vcpkg-build
+          zstd vcpkg-build.tar
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
         with:
-          path: vcpkg-build.tar
-          name: vcpkg-build.tar
-          compression-level: 1
+          path: vcpkg-build.tar.zst
+          name: vcpkg-build.tar.zst
+          compression-level: 0
   download:
     needs: build-docker
     runs-on: ubuntu-latest
@@ -36,10 +38,11 @@ jobs:
       - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: vcpkg-build.tar
+          pattern: vcpkg-build.tar.zst
       - name: Load image
         run: |
-          docker load --input vcpkg-build.tar/vcpkg-build.tar
+          zstd -d vcpkg-build.tar.zst/vcpkg-build.tar.zst
+          docker load --input vcpkg-build.tar.zst/vcpkg-build.tar
 
       - name: Build ${{ matrix.arch }} libraries
         run: docker run -v $(pwd)/project:/project -t vcpkg-build vcpkg install --triplet ${{ matrix.arch }}-android-dynamic
