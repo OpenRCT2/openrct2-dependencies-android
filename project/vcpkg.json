@@ -1,0 +1,11 @@
+{
+  "dependencies": [
+    "curl",
+    "freetype",
+    "icu",
+    "libpng",
+    "sdl2",
+    "speexdsp"
+  ],
+  "builtin-baseline": "07635428f03ddcc11d775f365aaee0b7120730a2"
+}
