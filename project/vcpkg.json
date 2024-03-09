@@ -3,7 +3,11 @@
     "curl",
     "freetype",
     "icu",
+    "libflac",
+    "libogg",
     "libpng",
+    "libvorbis",
+    "openssl",
     "sdl2",
     "speexdsp"
   ],
