@@ -21,7 +21,7 @@ RUN git clone https://github.com/microsoft/vcpkg
 WORKDIR vcpkg
 RUN ./bootstrap-vcpkg.sh
 
-COPY arm64-android-dynamic.cmake x64-android-dynamic.cmake /vcpkg/triplets/
+COPY arm-android-dynamic.cmake arm64-android-dynamic.cmake x64-android-dynamic.cmake /vcpkg/triplets/
 
 ENV PATH "/vcpkg:$PATH"
 ENV VCPKG_ROOT "/vcpkg"
