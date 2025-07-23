@@ -11,11 +11,11 @@ RUN \
 
 # Download Android NDK
 RUN \
-  wget https://dl.google.com/android/repository/android-ndk-r27c-linux.zip && \
-  unzip android-ndk-r27c-linux.zip && \
-  rm -rf android-ndk-r27c-linux.zip
+  wget https://dl.google.com/android/repository/android-ndk-r27d-linux.zip && \
+  unzip android-ndk-r27d-linux.zip && \
+  rm -rf android-ndk-r27d-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r27c
+ENV ANDROID_NDK_HOME /android-ndk-r27d
 
 RUN git clone https://github.com/microsoft/vcpkg
 WORKDIR vcpkg
