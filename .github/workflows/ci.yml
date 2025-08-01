@@ -32,7 +32,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [arm, arm64, x64]
+        include:
+          - arch: arm
+            android_abi: armeabi-v7a
+          - arch: arm64
+            android_abi: arm64-v8a
+          - arch: x64
+            android_abi: x86_64
     steps:
       - uses: actions/checkout@v4
       - name: Download All Artifacts
@@ -48,11 +54,15 @@ jobs:
         run: docker run -v $(pwd)/project:/project -t vcpkg-build vcpkg install --triplet ${{ matrix.arch }}-android-dynamic
 
       - name: Archive libraries
-        run: tar -c --zstd -f ${{ matrix.arch }}-android-dynamic.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
+        run: |
+          tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
+          tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic.tar.zst -C project/vcpkg_installed/ --exclude='*/debug' ${{ matrix.arch }}-android-dynamic
 
       - name: Upload libraries
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ matrix.arch }}-android-dynamic.tar.zst
-          name: ${{ matrix.arch }}-android-dynamic.tar.zst
+          path: |
+            ${{ matrix.android_abi }}-android-dynamic.tar.zst
+            ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst
+          name: ${{ matrix.android_abi }}-android-dynamic
           compression-level: 1
