@@ -1,6 +1,6 @@
 FROM ubuntu:24.04
 
-ENV DEBIAN_FRONTEND noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
   apt-get update && \
@@ -15,15 +15,15 @@ RUN \
   unzip android-ndk-r27d-linux.zip && \
   rm -rf android-ndk-r27d-linux.zip
 
-ENV ANDROID_NDK_HOME /android-ndk-r27d
+ENV ANDROID_NDK_HOME=/android-ndk-r27d
 
-RUN git clone https://github.com/microsoft/vcpkg
-WORKDIR vcpkg
+RUN git clone https://github.com/microsoft/vcpkg /vcpkg
+WORKDIR /vcpkg
 RUN ./bootstrap-vcpkg.sh
 
 COPY arm-android-dynamic.cmake arm64-android-dynamic.cmake x64-android-dynamic.cmake /vcpkg/triplets/
 
-ENV PATH "/vcpkg:$PATH"
-ENV VCPKG_ROOT "/vcpkg"
+ENV PATH="/vcpkg:$PATH"
+ENV VCPKG_ROOT="/vcpkg"
 
 WORKDIR /project
