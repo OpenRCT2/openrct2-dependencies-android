@@ -60,8 +60,9 @@ jobs:
 
       - name: Calculate SHA256 checksums
         run: |
-          sha256sum ${{ matrix.android_abi }}-android-dynamic.tar.zst
-          sha256sum ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst
+          sha256sum ${{ matrix.android_abi }}-android-dynamic.tar.zst > ${{ matrix.android_abi }}-checksums.txt
+          sha256sum ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst >> ${{ matrix.android_abi }}-checksums.txt
+          cat ${{ matrix.android_abi }}-checksums.txt
 
       - name: Upload libraries
         uses: actions/upload-artifact@v4
@@ -69,5 +70,37 @@ jobs:
           path: |
             ${{ matrix.android_abi }}-android-dynamic.tar.zst
             ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst
+            ${{ matrix.android_abi }}-checksums.txt
           name: ${{ matrix.android_abi }}-android-dynamic
           compression-level: 1
+
+  summary:
+    needs: download
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Checksums
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-android-dynamic"
+          merge-multiple: true
+
+      - name: Create Summary
+        run: |
+          echo "# Build Artifacts SHA256 Checksums" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Architecture | File | SHA256 |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------------|------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for checksum_file in *-checksums.txt; do
+            arch=$(echo $checksum_file | sed 's/-checksums.txt//')
+            while IFS=' ' read -r hash filename; do
+              echo "| $arch | $filename | \`$hash\` |" >> $GITHUB_STEP_SUMMARY
+            done < "$checksum_file"
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          for checksum_file in *-checksums.txt; do
+            cat "$checksum_file" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
