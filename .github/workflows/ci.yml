@@ -32,7 +32,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [arm, arm64, x64]
+        include:
+          - arch: arm
+            android_abi: armeabi-v7a
+          - arch: arm64
+            android_abi: arm64-v8a
+          - arch: x64
+            android_abi: x86_64
     steps:
       - uses: actions/checkout@v4
       - name: Download All Artifacts
@@ -48,11 +54,53 @@ jobs:
         run: docker run -v $(pwd)/project:/project -t vcpkg-build vcpkg install --triplet ${{ matrix.arch }}-android-dynamic
 
       - name: Archive libraries
-        run: tar -c --zstd -f ${{ matrix.arch }}-android-dynamic.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
+        run: |
+          tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
+          tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic.tar.zst -C project/vcpkg_installed/ --exclude='*/debug' ${{ matrix.arch }}-android-dynamic
+
+      - name: Calculate SHA256 checksums
+        run: |
+          sha256sum ${{ matrix.android_abi }}-android-dynamic.tar.zst > ${{ matrix.android_abi }}-checksums.txt
+          sha256sum ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst >> ${{ matrix.android_abi }}-checksums.txt
+          cat ${{ matrix.android_abi }}-checksums.txt
 
       - name: Upload libraries
         uses: actions/upload-artifact@v4
         with:
-          path: ${{ matrix.arch }}-android-dynamic.tar.zst
-          name: ${{ matrix.arch }}-android-dynamic.tar.zst
+          path: |
+            ${{ matrix.android_abi }}-android-dynamic.tar.zst
+            ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst
+            ${{ matrix.android_abi }}-checksums.txt
+          name: ${{ matrix.android_abi }}-android-dynamic
           compression-level: 1
+
+  summary:
+    needs: download
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download All Checksums
+        uses: actions/download-artifact@v4
+        with:
+          pattern: "*-android-dynamic"
+          merge-multiple: true
+
+      - name: Create Summary
+        run: |
+          echo "# Build Artifacts SHA256 Checksums" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Architecture | File | SHA256 |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------------|------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          for checksum_file in *-checksums.txt; do
+            arch=$(echo $checksum_file | sed 's/-checksums.txt//')
+            while IFS=' ' read -r hash filename; do
+              echo "| $arch | $filename | \`$hash\` |" >> $GITHUB_STEP_SUMMARY
+            done < "$checksum_file"
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          for checksum_file in *-checksums.txt; do
+            cat "$checksum_file" >> $GITHUB_STEP_SUMMARY
+          done
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
