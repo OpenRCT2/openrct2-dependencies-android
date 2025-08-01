@@ -58,6 +58,11 @@ jobs:
           tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst -C project/vcpkg_installed/ ${{ matrix.arch }}-android-dynamic
           tar -c --zstd -f ${{ matrix.android_abi }}-android-dynamic.tar.zst -C project/vcpkg_installed/ --exclude='*/debug' ${{ matrix.arch }}-android-dynamic
 
+      - name: Calculate SHA256 checksums
+        run: |
+          sha256sum ${{ matrix.android_abi }}-android-dynamic.tar.zst
+          sha256sum ${{ matrix.android_abi }}-android-dynamic-debug.tar.zst
+
       - name: Upload libraries
         uses: actions/upload-artifact@v4
         with:
