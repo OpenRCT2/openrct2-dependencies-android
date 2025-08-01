@@ -9,7 +9,8 @@
     "libvorbis",
     "openssl",
     "sdl2",
-    "speexdsp"
+    "speexdsp",
+    "zstd"
   ],
   "builtin-baseline": "dd3097e305afa53f7b4312371f62058d2e665320"
 }
