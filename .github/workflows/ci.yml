@@ -8,13 +8,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build docker image
-        run: docker build . -t vcpkg-build
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Save docker image
-        run: |
-          docker save -o vcpkg-build.tar vcpkg-build
-          zstd vcpkg-build.tar
+      - name: Build docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: vcpkg-build
+          outputs: type=docker,dest=/tmp/vcpkg-build.tar
+
+      - name: Compress docker image
+        run: zstd /tmp/vcpkg-build.tar -o vcpkg-build.tar.zst
 
       - name: Upload docker image
         uses: actions/upload-artifact@v4
