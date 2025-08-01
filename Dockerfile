@@ -17,8 +17,8 @@ RUN \
 
 ENV ANDROID_NDK_HOME=/android-ndk-r27d
 
-RUN git clone https://github.com/microsoft/vcpkg
-WORKDIR vcpkg
+RUN git clone https://github.com/microsoft/vcpkg /vcpkg
+WORKDIR /vcpkg
 RUN ./bootstrap-vcpkg.sh
 
 COPY arm-android-dynamic.cmake arm64-android-dynamic.cmake x64-android-dynamic.cmake /vcpkg/triplets/
